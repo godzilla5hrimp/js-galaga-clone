@@ -14,6 +14,8 @@ window.addEventListener('load', function () {
         if ((event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') 
         && this.game.keys.indexOf(event.key) === -1) {
           this.game.keys.push(event.key);
+        } else if (event.key === ' ') {
+          this.game.player.shoot();
         }
       });
       window.addEventListener('keyup', event => {
@@ -33,9 +35,15 @@ window.addEventListener('load', function () {
       this.width = 2;
       this.height = 4;
       this.speed = 3;
+      this.markedForDeletion = false;
     }
     update() {
       this.x += this.speed;
+      if (this.x > this.game.width * 0.8 ) this.markedForDeletion = true;
+    }
+    draw(context) {
+      context.fillStyle = 'yellow';
+      fillRect(this.x, this.y, this.width, this.height);
     }
   }
 
@@ -71,8 +79,14 @@ window.addEventListener('load', function () {
       }
       this.x += this.speedX;
       this.y += this.speedY;
+
+      //handle projectiles
+      this.projectiles.array.forEach(element => {
+        element.update();
+      });
     }
     draw(context) {
+      context.fillStyle = 'black';
       context.fillRect(this.x, this.y, this.width, this.height);
     }
   }
@@ -93,12 +107,16 @@ window.addEventListener('load', function () {
       this.input = new InputHandler(this);
       this.player = new Player(this);
       this.keys = [];
+      this.projectiles = [];
     }
     update() {
       this.player.update();
     }
     draw(context) {
       this.player.draw(context);
+    }
+    shoot() {
+      this.projectiles.push(new Projectile(this.game, this.x, this.y));
     }
   }
   const game = new Game(canvas.width, canvas.height);

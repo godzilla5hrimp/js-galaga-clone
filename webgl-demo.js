@@ -63,6 +63,7 @@ window.addEventListener('load', function () {
       this.y = 100;
       this.speedY = 0;
       this.speedX = 0;
+      this.projectiles = [];
     }
     update() {
       if (game.keys.includes('ArrowUp')) {

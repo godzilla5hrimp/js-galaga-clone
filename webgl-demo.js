@@ -43,7 +43,7 @@ window.addEventListener('load', function () {
     }
     draw(context) {
       context.fillStyle = 'yellow';
-      fillRect(this.x, this.y, this.width, this.height);
+      context.fillRect(this.x, this.y, this.width, this.height);
     }
   }
 
@@ -84,10 +84,14 @@ window.addEventListener('load', function () {
       this.projectiles.array.forEach(element => {
         element.update();
       });
+      this.projectiles = this.projectiles.fileter(projectile => !projectile.markedForDeletion);
     }
     draw(context) {
       context.fillStyle = 'black';
       context.fillRect(this.x, this.y, this.width, this.height);
+      this.projectiles.array.forEach(element => {
+        element.draw(context);
+      });
     }
   }
   class Layer {

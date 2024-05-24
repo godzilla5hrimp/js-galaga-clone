@@ -161,6 +161,7 @@ window.addEventListener('load', function () {
       this.input = new InputHandler(this);
       this.player = new Player(this);
       this.ui = new UI(this);
+      //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;
       this.score = 0;
@@ -210,6 +211,7 @@ window.addEventListener('load', function () {
         enemy.draw(context);
       });
       if(this.gameOver) {
+        //TODO: fix fill text for other text not to jump + text colour
         context.textAlign = 'center';
         context.font = '50px ' + this.fontFamily; 
         context.fillText('Game Over', this.width * 0.5, this.height * 0.5);

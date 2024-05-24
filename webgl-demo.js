@@ -82,7 +82,7 @@ window.addEventListener('load', function () {
       this.y += this.speedY;
 
       //handle projectiles
-      this.projectiles.array.forEach(element => {
+      this.projectiles.forEach(element => {
         element.update();
       });
       this.projectiles = this.projectiles.fileter(projectile => !projectile.markedForDeletion);
@@ -90,7 +90,7 @@ window.addEventListener('load', function () {
     draw(context) {
       context.fillStyle = 'black';
       context.fillRect(this.x, this.y, this.width, this.height);
-      this.projectiles.array.forEach(element => {
+      this.projectiles.forEach(element => {
         element.draw(context);
       });
     }

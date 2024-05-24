@@ -9,12 +9,11 @@ window.addEventListener('load', function () {
     constructor(game) {
       this.game = game;
       window.addEventListener('keydown', event => {
-        console.log(event.key);
         let index = this.game.keys.indexOf(event.key);
         if ((event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') 
         && this.game.keys.indexOf(event.key) === -1) {
           this.game.keys.push(event.key);
-        } else if (event.key === ' ') {
+        } else if (event.key === 'a') {
           this.game.player.shoot();
         }
       });
@@ -38,7 +37,7 @@ window.addEventListener('load', function () {
       this.markedForDeletion = false;
     }
     update() {
-      this.x += this.speed;
+      this.y -= this.speed;
       if (this.x > this.game.width * 0.8 ) this.markedForDeletion = true;
     }
     draw(context) {
@@ -52,8 +51,33 @@ window.addEventListener('load', function () {
   }
 
   class Enemy {
+    constructor(game) {
+      this.game = game;
+      this.y = 0;
+      this.width = 8;
+      this.height = 7;
+      this.speedY = 2;
+      this.markedForDeletion = false;
+    }
 
+    update() {
+      this.y += this.speedY;
+      if(this.y > this.game.height) this.markedForDeletion = true;
+    }
+
+    draw(context) {
+      context.fillStyle = 'red';
+      context.fillRect(this.x, this.y, this.width, this.height); 
+    }
   }
+
+  class SmallEnemyShip extends Enemy {
+    constructor(game) {
+      super(game);
+      this.x = Math.random() * (this.game.width * 0.9 - this.game.width);
+    }
+  }
+
   class Player {
     constructor(game) {
       this.game = game;
@@ -85,7 +109,10 @@ window.addEventListener('load', function () {
       this.projectiles.forEach(element => {
         element.update();
       });
-      this.projectiles = this.projectiles.fileter(projectile => !projectile.markedForDeletion);
+      this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
+    }
+    shoot() {
+      this.projectiles.push(new Projectile(this.game, this.x, this.y));
     }
     draw(context) {
       context.fillStyle = 'black';
@@ -102,7 +129,19 @@ window.addEventListener('load', function () {
 
   }
   class UI {
+    constructor(game) {
+      this.game = game;
+      this.fontSize = 25;
+      this.fontFamily = 'Helvetica';
+      this.color = 'white';
+    }
 
+    draw(context) {
+      context.fillStyle = this.color;
+      for (let i = 1; i < this.game.lifes; i++) {
+        context.fillRect(20 * i, 50, 3, 20);
+      }
+    }
   }
 
   class Game {
@@ -111,26 +150,60 @@ window.addEventListener('load', function () {
       this.height = height;
       this.input = new InputHandler(this);
       this.player = new Player(this);
+      this.ui = new UI(this);
+      this.gameOver = false;
+
+      //timers
+      this.enemyTimer = 0;
+      this.enemyInterval = 1000;
+
+      //arrays
       this.keys = [];
       this.projectiles = [];
+      this.lifes = 3;
+      this.enemies = [];
     }
-    update() {
+
+    update(deltaTime) {
       this.player.update();
+      this.enemies.forEach(enemy => {
+        enemy.update();
+      });
+      this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
+      if((this.enemyTimer > this.enemyInterval) && !this.gameOver && this.enemies.length < 3) {
+        this.addEnemy();
+        this.enemyTimer = 0;
+      } else {
+        this.enemyTimer += deltaTime;
+      }
     }
+    
+    addEnemy() {
+      this.enemies.push(new SmallEnemyShip());
+    }
+
     draw(context) {
       this.player.draw(context);
+      this.ui.draw(context);
+      this.enemies.forEach(enemy => {
+        enemy.draw(context);
+      });
     }
+
     shoot() {
       this.projectiles.push(new Projectile(this.game, this.x, this.y));
     }
   }
   const game = new Game(canvas.width, canvas.height);
+  let lastTime = 0;
 
-  function loop() {
+  function loop(timeStamp) {
+    const deltaTime = timeStamp - lastTime;
+    lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     game.update();
     game.draw(ctx);
     requestAnimationFrame(loop);
   }
-  loop();
+  loop(0);
 });

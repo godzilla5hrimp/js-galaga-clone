@@ -19,6 +19,8 @@ window.addEventListener('load', function () {
           this.game.isPaused = false;
         } else if (event.key === 'p') {
           this.game.isPaused = true;
+        } else if (event.key === 'g') {
+          this.game.gameOver = true;
         }
       });
       window.addEventListener('keyup', event => {
@@ -141,10 +143,14 @@ window.addEventListener('load', function () {
     }
 
     draw(context) {
+      context.save();
       context.fillStyle = this.color;
+      context.font = this.fontSize + 'px ' + this.fontFamily;
+      context.fillText('Score: ' + this.game.score, 20, 40);
       for (let i = 1; i < this.game.lifes; i++) {
         context.fillRect(20 * i, 50, 3, 20);
       }
+      context.restore();
     }
   }
 
@@ -156,7 +162,8 @@ window.addEventListener('load', function () {
       this.player = new Player(this);
       this.ui = new UI(this);
       this.gameOver = false;
-      this.isPaused = false;
+      this.isPaused = true;
+      this.score = 0;
 
       //timers
       this.enemyTimer = 0;
@@ -171,17 +178,24 @@ window.addEventListener('load', function () {
 
     update(deltaTime) {
       if (!this.isPaused) {
-      this.player.update();
-      this.enemies.forEach(enemy => {
-        enemy.update();
-      });
-      this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
-      if((this.enemyTimer > this.enemyInterval) && !this.gameOver) {
-        this.addEnemy();
-        this.enemyTimer = 0;
-      } else {
-        this.enemyTimer += deltaTime;
-      }
+        this.player.update();
+        this.enemies.forEach(enemy => {
+          this.player.projectiles.forEach(projectile => {
+            if (this.checkCollision(projectile, enemy)) {
+              enemy.markedForDeletion = true;
+              projectile.markedForDeletion = true;
+              this.score += 5;
+            }
+          });
+          enemy.update();
+        });
+        this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
+        if((this.enemyTimer > this.enemyInterval) && !this.gameOver) {
+          this.addEnemy();
+          this.enemyTimer = 0;
+        } else {
+          this.enemyTimer += deltaTime;
+        }
       }
     }
     
@@ -195,12 +209,23 @@ window.addEventListener('load', function () {
       this.enemies.forEach(enemy => {
         enemy.draw(context);
       });
+      if(this.gameOver) {
+        context.textAlign = 'center';
+        context.font = '50px ' + this.fontFamily; 
+        context.fillText('Game Over', this.width * 0.5, this.height * 0.5);
+      }
     }
 
-    shoot() {
-      this.projectiles.push(new Projectile(this.game, this.x, this.y));
+    checkCollision(rect1, rect2) {
+      return(
+        rect1.x < rect2.x + rect2.width &&
+        rect1.x + rect1.width > rect2.x &&
+        rect1.y < rect2.y + rect2.height &&
+        rect1.y + rect1.height > rect1.y
+      )
     }
   }
+
   const game = new Game(canvas.width, canvas.height);
   let lastTime = 0;
 

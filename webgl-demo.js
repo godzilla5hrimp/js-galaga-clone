@@ -15,6 +15,10 @@ window.addEventListener('load', function () {
           this.game.keys.push(event.key);
         } else if (event.key === 'a') {
           this.game.player.shoot();
+        } else if (event.key === 'p' && this.game.isPaused) {
+          this.game.isPaused = false;
+        } else if (event.key === 'p') {
+          this.game.isPaused = true;
         }
       });
       window.addEventListener('keyup', event => {
@@ -74,7 +78,7 @@ window.addEventListener('load', function () {
   class SmallEnemyShip extends Enemy {
     constructor(game) {
       super(game);
-      this.x = Math.random() * (this.game.width * 0.9 - this.game.width);
+      this.x = Math.random() * (this.game.width * 0.9 - this.width);
     }
   }
 
@@ -83,8 +87,8 @@ window.addEventListener('load', function () {
       this.game = game;
       this.width = 8;
       this.height = 7;
-      this.x = 20;
-      this.y = 100;
+      this.x = this.game.width/2;
+      this.y = 400;
       this.speedY = 0;
       this.speedX = 0;
       this.projectiles = [];
@@ -152,6 +156,7 @@ window.addEventListener('load', function () {
       this.player = new Player(this);
       this.ui = new UI(this);
       this.gameOver = false;
+      this.isPaused = false;
 
       //timers
       this.enemyTimer = 0;
@@ -165,21 +170,23 @@ window.addEventListener('load', function () {
     }
 
     update(deltaTime) {
+      if (!this.isPaused) {
       this.player.update();
       this.enemies.forEach(enemy => {
         enemy.update();
       });
       this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
-      if((this.enemyTimer > this.enemyInterval) && !this.gameOver && this.enemies.length < 3) {
+      if((this.enemyTimer > this.enemyInterval) && !this.gameOver) {
         this.addEnemy();
         this.enemyTimer = 0;
       } else {
         this.enemyTimer += deltaTime;
       }
+      }
     }
     
     addEnemy() {
-      this.enemies.push(new SmallEnemyShip());
+      this.enemies.push(new SmallEnemyShip(this));
     }
 
     draw(context) {
@@ -201,7 +208,7 @@ window.addEventListener('load', function () {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    game.update();
+    game.update(deltaTime);
     game.draw(ctx);
     requestAnimationFrame(loop);
   }

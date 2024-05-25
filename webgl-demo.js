@@ -84,9 +84,21 @@ window.addEventListener('load', function () {
     }
   }
 
+  class SpriteSheet {
+    constructor() {
+      //TODO: draw myself a ship an some aliens
+      //this.sheet = document.getElementById('spriteSheet');
+    }
+
+    drawPlayerNormal(context, player) {
+      context.drawImage(this.sheet, 0, 0, 7, 8, player.x, player.y, 20, 20);
+    }
+  }
+
   class Player {
-    constructor(game) {
+    constructor(game, spriteSheet) {
       this.game = game;
+      this.spriteSheet = spriteSheet;
       this.width = 8;
       this.height = 7;
       this.x = this.game.width/2;
@@ -123,6 +135,7 @@ window.addEventListener('load', function () {
     draw(context) {
       context.fillStyle = 'black';
       context.fillRect(this.x, this.y, this.width, this.height);
+      //this.spriteSheet.drawPlayerNormal(context, this);
       this.projectiles.forEach(element => {
         element.draw(context);
       });
@@ -171,9 +184,10 @@ window.addEventListener('load', function () {
     constructor(width, height) {
       this.width = width;
       this.height = height;
+      this.spriteSheet = new SpriteSheet();
       this.input = new InputHandler(this);
       this.background = new Background(this);
-      this.player = new Player(this);
+      this.player = new Player(this, this.spriteSheet);
       this.ui = new UI(this);
       //TODO: fix this state
       this.gameOver = false;

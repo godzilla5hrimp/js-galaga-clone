@@ -97,13 +97,13 @@ window.addEventListener('load', function () {
     }
     update() {
       if (game.keys.includes('ArrowUp')) {
-        this.speedY = -1;
+        this.speedY = -3;
       } else if (game.keys.includes('ArrowDown')) {
-        this.speedY = 1;
+        this.speedY = 3;
       } else if (game.keys.includes('ArrowLeft')) {
-        this.speedX = -1;
+        this.speedX = -3;
       } else if (game.keys.includes('ArrowRight')) { 
-        this.speedX = 1;
+        this.speedX = 3;
       } else {
         this.speedX = 0;
         this.speedY = 0;
@@ -128,12 +128,25 @@ window.addEventListener('load', function () {
       });
     }
   }
+  
   class Layer {
-
+  
   }
+
   class Background {
+    constructor(game) {
+      this.game = game;
+    }
 
+    update() {
+
+    }
+
+    draw(context) {
+      //TODO: draw randomly appearing stars as a background moving down
+    }
   }
+
   class UI {
     constructor(game) {
       this.game = game;
@@ -148,7 +161,7 @@ window.addEventListener('load', function () {
       context.font = this.fontSize + 'px ' + this.fontFamily;
       context.fillText('Score: ' + this.game.score, 20, 40);
       for (let i = 1; i < this.game.lifes; i++) {
-        context.fillRect(20 * i, 50, 3, 20);
+        context.fillRect(15 * i, 450, 3, 20);
       }
       context.restore();
     }
@@ -159,12 +172,14 @@ window.addEventListener('load', function () {
       this.width = width;
       this.height = height;
       this.input = new InputHandler(this);
+      this.background = new Background(this);
       this.player = new Player(this);
       this.ui = new UI(this);
       //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;
       this.score = 0;
+      this.gameTime = 0;
 
       //timers
       this.enemyTimer = 0;
@@ -179,6 +194,8 @@ window.addEventListener('load', function () {
 
     update(deltaTime) {
       if (!this.isPaused) {
+        this.background.update();
+        if(!this.gameOver) this.gameTime += deltaTime;
         this.player.update();
         this.enemies.forEach(enemy => {
           this.player.projectiles.forEach(projectile => {
@@ -205,17 +222,29 @@ window.addEventListener('load', function () {
     }
 
     draw(context) {
+      this.background.draw(context);
       this.player.draw(context);
-      this.ui.draw(context);
       this.enemies.forEach(enemy => {
         enemy.draw(context);
       });
+      if(this.isPaused) {
+       context.save();
+       context.textAlign = 'center';
+       context.fillStyle = 'white';
+       context.font = '50px ' + this.fontFamily;
+       context.fillText('Paused', this.width * 0.5, this.height * 0.5);
+       context.restore(); 
+      }
       if(this.gameOver) {
         //TODO: fix fill text for other text not to jump + text colour
+        context.save();
+        context.fillStyle = 'white';
         context.textAlign = 'center';
         context.font = '50px ' + this.fontFamily; 
         context.fillText('Game Over', this.width * 0.5, this.height * 0.5);
+        context.restore();
       }
+      this.ui.draw(context);
     }
 
     checkCollision(rect1, rect2) {

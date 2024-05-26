@@ -47,8 +47,9 @@ window.addEventListener('load', function () {
       if (this.x > this.game.width * 0.8 ) this.markedForDeletion = true;
     }
     draw(context) {
-      context.fillStyle = 'yellow';
-      context.fillRect(this.x, this.y, this.width, this.height);
+      //context.fillStyle = 'yellow';
+      //context.fillRect(this.x, this.y, this.width, this.height);
+      context.drawImage(this.game.spriteSheet.sheet, 313, 122, 3, 7, this.x, this.y, 6, 14);
     }
   }
 
@@ -56,17 +57,12 @@ window.addEventListener('load', function () {
 
   }
 
-  //TODO: switch from spite sheet letters to normal fonts
-  class SpriteAlphabet {
-
-  }
-
   class Enemy {
     constructor(game) {
       this.game = game;
       this.y = 0;
-      this.width = 8;
-      this.height = 7;
+      this.width = 32;
+      this.height = 32;
       this.speedY = 2;
       this.markedForDeletion = false;
     }
@@ -77,8 +73,9 @@ window.addEventListener('load', function () {
     }
 
     draw(context) {
-      context.fillStyle = 'red';
-      context.fillRect(this.x, this.y, this.width, this.height); 
+      //context.fillStyle = 'red';
+      //context.fillRect(this.x, this.y, this.width, this.height);
+      context.drawImage(this.game.spriteSheet.sheet, 110, 37, 16, 16, this.x, this.y, this.width, this.height); 
     }
   }
 
@@ -91,12 +88,11 @@ window.addEventListener('load', function () {
 
   class SpriteSheet {
     constructor() {
-      //TODO: draw myself a ship an some aliens
       this.sheet = document.getElementById('sprites');
     }
 
     drawPlayerNormal(context, player) {
-      context.drawImage(this.sheet, 109, 1, 15, 16, player.x - 16, player.y, player.width, player.height);
+      context.drawImage(this.sheet, 109, 1, 15, 16, player.x - 14, player.y + 6, player.width, player.height);
     }
   }
 
@@ -171,6 +167,7 @@ window.addEventListener('load', function () {
       this.fontSize = 25;
       this.fontFamily = 'PixeloidMono';
       this.color = 'white';
+      
     }
 
     draw(context) {
@@ -179,7 +176,8 @@ window.addEventListener('load', function () {
       context.font = this.fontSize + 'px ' + this.fontFamily;
       context.fillText('Score: ' + this.game.score, 20, 40);
       for (let i = 1; i < this.game.lifes; i++) {
-        context.fillRect(15 * i, 450, 3, 20);
+        //context.fillRect(15 * i, 450, 3, 20);
+        context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2, 450, 32, 32);
       }
       context.restore();
     }

@@ -17,4 +17,5 @@
 
 #sprites, #textSprites {
   display: none;
+  visibility: hidden;
 }

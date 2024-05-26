@@ -169,7 +169,7 @@ window.addEventListener('load', function () {
     constructor(game) {
       this.game = game;
       this.fontSize = 25;
-      this.fontFamily = 'Helvetica';
+      this.fontFamily = 'PixeloidMono';
       this.color = 'white';
     }
 
@@ -194,6 +194,7 @@ window.addEventListener('load', function () {
       this.background = new Background(this);
       this.player = new Player(this, this.spriteSheet);
       this.ui = new UI(this);
+      this.fontFamily = 'PixeloidMono';
       //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;

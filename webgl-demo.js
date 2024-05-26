@@ -56,6 +56,11 @@ window.addEventListener('load', function () {
 
   }
 
+  //TODO: switch from spite sheet letters to normal fonts
+  class SpriteAlphabet {
+
+  }
+
   class Enemy {
     constructor(game) {
       this.game = game;
@@ -87,11 +92,11 @@ window.addEventListener('load', function () {
   class SpriteSheet {
     constructor() {
       //TODO: draw myself a ship an some aliens
-      //this.sheet = document.getElementById('spriteSheet');
+      this.sheet = document.getElementById('sprites');
     }
 
     drawPlayerNormal(context, player) {
-      context.drawImage(this.sheet, 0, 0, 7, 8, player.x, player.y, 20, 20);
+      context.drawImage(this.sheet, 109, 1, 15, 16, player.x - 16, player.y, player.width, player.height);
     }
   }
 
@@ -99,8 +104,8 @@ window.addEventListener('load', function () {
     constructor(game, spriteSheet) {
       this.game = game;
       this.spriteSheet = spriteSheet;
-      this.width = 8;
-      this.height = 7;
+      this.width = 32;
+      this.height = 32;
       this.x = this.game.width/2;
       this.y = 400;
       this.speedY = 0;
@@ -133,9 +138,9 @@ window.addEventListener('load', function () {
       this.projectiles.push(new Projectile(this.game, this.x, this.y));
     }
     draw(context) {
-      context.fillStyle = 'black';
-      context.fillRect(this.x, this.y, this.width, this.height);
-      //this.spriteSheet.drawPlayerNormal(context, this);
+      // context.fillStyle = 'black';
+      // context.fillRect(this.x, this.y, this.width, this.height);
+      this.spriteSheet.drawPlayerNormal(context, this);
       this.projectiles.forEach(element => {
         element.draw(context);
       });

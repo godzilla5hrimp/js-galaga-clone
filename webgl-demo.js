@@ -121,6 +121,11 @@ window.addEventListener('load', function () {
         this.speedX = 0;
         this.speedY = 0;
       }
+      if(this.x > this.game.width - this.width){
+        this.x = this.game.width - this.width;
+      } else if (this.x - this.width < 0) {
+        this.x = this.width;
+      }
       this.x += this.speedX;
       this.y += this.speedY;
 

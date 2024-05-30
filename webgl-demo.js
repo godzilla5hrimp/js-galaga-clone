@@ -161,19 +161,36 @@ window.addEventListener('load', function () {
     }
   }
 
+  //TODO: check whether it will be possible to it differently
+  const UIStates = {
+    mainMenu: 'mainMenu',
+    credits: 'credits',
+    game: 'game',
+    options: 'options',
+    help: 'help',
+    winnerTable: 'winnerTable',
+    demo: 'demo'
+  }
+
   class UI {
     constructor(game) {
       this.game = game;
       this.fontSize = 25;
       this.fontFamily = 'PixeloidMono';
       this.color = 'white';
-      
+      this.state = UIStates.mainMenu;
     }
 
     draw(context) {
       context.save();
       context.fillStyle = this.color;
       context.font = this.fontSize + 'px ' + this.fontFamily;
+      switch (this.state) {
+        case UIStates.mainMenu:
+          context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
+          break;
+      }
+  
       context.fillText('Score: ' + this.game.score, 20, 40);
       for (let i = 1; i < this.game.lifes; i++) {
         //context.fillRect(15 * i, 450, 3, 20);

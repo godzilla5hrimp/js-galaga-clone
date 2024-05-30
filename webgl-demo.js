@@ -3,14 +3,14 @@ window.addEventListener('load', function () {
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
   canvas.width = 500;
-  canvas.height = 500;
+  canvas.height = 800;
 
   class InputHandler {
     constructor(game) {
       this.game = game;
       window.addEventListener('keydown', event => {
         let index = this.game.keys.indexOf(event.key);
-        if ((event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') 
+        if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') 
         && this.game.keys.indexOf(event.key) === -1) {
           this.game.keys.push(event.key);
         } else if (event.key === 'a') {
@@ -44,7 +44,7 @@ window.addEventListener('load', function () {
     }
     update() {
       this.y -= this.speed;
-      if (this.x > this.game.width * 0.8 ) this.markedForDeletion = true;
+      if (this.x > this.game.width) this.markedForDeletion = true;
     }
     draw(context) {
       //context.fillStyle = 'yellow';
@@ -103,17 +103,13 @@ window.addEventListener('load', function () {
       this.width = 32;
       this.height = 32;
       this.x = this.game.width/2;
-      this.y = 400;
+      this.y = this.game.height - 90;
       this.speedY = 0;
       this.speedX = 0;
       this.projectiles = [];
     }
     update() {
-      if (game.keys.includes('ArrowUp')) {
-        this.speedY = -3;
-      } else if (game.keys.includes('ArrowDown')) {
-        this.speedY = 3;
-      } else if (game.keys.includes('ArrowLeft')) {
+      if (game.keys.includes('ArrowLeft')) {
         this.speedX = -3;
       } else if (game.keys.includes('ArrowRight')) { 
         this.speedX = 3;
@@ -192,14 +188,15 @@ window.addEventListener('load', function () {
       context.font = this.fontSize + 'px ' + this.fontFamily;
       switch (this.state) {
         case UIStates.mainMenu:
-          context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
+          //context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
           break;
       }
   
-      context.fillText('Score: ' + this.game.score, 20, 40);
+      context.fillText(this.game.score, 0, 20);
+      context.fillStyle = 'red';
+      context.fillText('HIGHSCORE', (this.game.width - 150) * 0.5, 20);
       for (let i = 1; i < this.game.lifes; i++) {
-        //context.fillRect(15 * i, 450, 3, 20);
-        context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2, 450, 32, 32);
+        context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
       }
       context.restore();
     }

@@ -135,12 +135,12 @@ window.addEventListener('load', function () {
       this.projectiles.push(new Projectile(this.game, this.x, this.y));
     }
     draw(context) {
-      // context.fillStyle = 'black';
-      // context.fillRect(this.x, this.y, this.width, this.height);
-      this.spriteSheet.drawPlayerNormal(context, this);
-      this.projectiles.forEach(element => {
-        element.draw(context);
-      });
+      if(this.game.state === UIStates.game) {
+        this.spriteSheet.drawPlayerNormal(context, this);
+        this.projectiles.forEach(element => {
+          element.draw(context);
+        });
+      }
     }
   }
   
@@ -186,20 +186,50 @@ window.addEventListener('load', function () {
       context.save();
       context.fillStyle = this.color;
       context.font = this.fontSize + 'px ' + this.fontFamily;
-      switch (this.state) {
+      switch (this.game.gameState) {
         case UIStates.mainMenu:
           //context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
+          this.drawMainMenu();
           break;
-      }
-  
-      context.fillText(this.game.score, 0, 20);
+        case UIStates.game:
+          if(this.game.isPaused) {
+            this.setTextStyleAndDrawInTheMiddle('PAUSED');
+          }
+          if (this.game.gameOver) {
+            this.setTextStyleAndDrawInTheMiddle('GAME OVER');
+          }
+          context.fillText(this.game.score, 0, 20);
+          context.fillStyle = 'red';
+          context.fillText('HIGHSCORE', (this.game.width - 150) * 0.5, 20);
+          for (let i = 1; i < this.game.lifes; i++) {
+            context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
+          }
+          context.restore();          context.fillStyle = 'red';
+          context.fillText('HIGHSCORE', (this.game.width - 150) * 0.5, 20);
+          for (let i = 1; i < this.game.lifes; i++) {
+            context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
+          }
+          context.restore();
+          break;
+        }
+    }
+
+    setTextStyleAndDrawInTheMiddle(text) {
+      context.save();
+      context.textAlign = 'center';
+      context.fillStyle = 'white';
+      context.font = '50px ' + this.fontFamily;
+      context.fillText(text, this.width * 0.5, this.height * 0.5);
+      context.restore(); 
+    }
+
+    drawMainMenu(context) {
+      //red text part
+      context.save();
       context.fillStyle = 'red';
-      context.fillText('HIGHSCORE', (this.game.width - 150) * 0.5, 20);
-      for (let i = 1; i < this.game.lifes; i++) {
-        context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
-      }
       context.restore();
     }
+
   }
 
   class Game {
@@ -212,6 +242,9 @@ window.addEventListener('load', function () {
       this.player = new Player(this, this.spriteSheet);
       this.ui = new UI(this);
       this.fontFamily = 'PixeloidMono';
+
+      //TODO: make sure that the enums are working as states here
+      this.gameState = UIStates.game;
       //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;
@@ -264,23 +297,6 @@ window.addEventListener('load', function () {
       this.enemies.forEach(enemy => {
         enemy.draw(context);
       });
-      if(this.isPaused) {
-       context.save();
-       context.textAlign = 'center';
-       context.fillStyle = 'white';
-       context.font = '50px ' + this.fontFamily;
-       context.fillText('Paused', this.width * 0.5, this.height * 0.5);
-       context.restore(); 
-      }
-      if(this.gameOver) {
-        //TODO: fix fill text for other text not to jump + text colour
-        context.save();
-        context.fillStyle = 'white';
-        context.textAlign = 'center';
-        context.font = '50px ' + this.fontFamily; 
-        context.fillText('Game Over', this.width * 0.5, this.height * 0.5);
-        context.restore();
-      }
       this.ui.draw(context);
     }
 

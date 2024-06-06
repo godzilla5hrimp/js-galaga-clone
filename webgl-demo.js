@@ -21,6 +21,17 @@ window.addEventListener('load', function () {
           this.game.isPaused = true;
         } else if (event.key === 'g') {
           this.game.gameOver = true;
+        } else if (event.key === 'ArrowUp' && this.game.menuChoice === 0) {
+          this.game.menuChoice = MenuStates.options;
+        } else if (event.key === 'ArrowUp') {
+          this.game.menuChoice = this.game.menuChoice - 1;
+        } else if (event.key === 'ArrowDown' && this.game.menuChoice === 3) {
+          this.game.menuChoice = MenuStates.onePlayer;
+        } else if (event.key === 'ArrowDown') {
+          this.game.menuChoice = this.game.menuChoice + 1;
+        } else if (event.key === ' ' && this.game.gameState === UIStates.mainMenu && this.game.menuChoice === MenuStates.onePlayer) {
+          this.game.gameState = UIStates.game;
+          this.game.isPaused = false;
         }
       });
       window.addEventListener('keyup', event => {
@@ -135,12 +146,12 @@ window.addEventListener('load', function () {
       this.projectiles.push(new Projectile(this.game, this.x, this.y));
     }
     draw(context) {
-      // context.fillStyle = 'black';
-      // context.fillRect(this.x, this.y, this.width, this.height);
-      this.spriteSheet.drawPlayerNormal(context, this);
-      this.projectiles.forEach(element => {
-        element.draw(context);
-      });
+      if(this.game.gameState === UIStates.game) {
+        this.spriteSheet.drawPlayerNormal(context, this);
+        this.projectiles.forEach(element => {
+          element.draw(context);
+        });
+      }
     }
   }
   
@@ -173,30 +184,123 @@ window.addEventListener('load', function () {
     demo: 'demo'
   }
 
+  //TODO: make it iterable
+  const MenuStates = {
+    onePlayer: 0,
+    twoPlayers: 1,
+    rules: 2,
+    options: 3
+  }
+
   class UI {
     constructor(game) {
       this.game = game;
       this.fontSize = 25;
       this.fontFamily = 'PixeloidMono';
       this.color = 'white';
-      this.state = UIStates.mainMenu;
     }
 
     draw(context) {
-      context.save();
-      context.fillStyle = this.color;
-      context.font = this.fontSize + 'px ' + this.fontFamily;
-      switch (this.state) {
+      switch (this.game.gameState) {
         case UIStates.mainMenu:
+          context.save();
           //context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
+          this.drawMainMenu(context);
+          switch(this.game.menuChoice) {
+            case MenuStates.onePlayer:
+              this.drawPicker(context, 1);
+              break;
+            case MenuStates.twoPlayers:
+              this.drawPicker(context, 2);
+              break;
+            case MenuStates.rules:
+              this.drawPicker(context, 3);
+              break;
+            case MenuStates.options:
+              this.drawPicker(context, 4);
+              break;          
+          }
+          //console.log(this.game.gameState);
+          context.restore();
           break;
-      }
-  
-      context.fillText(this.game.score, 0, 20);
+        case UIStates.game:
+          //TODO: fix UI in a game state;
+          context.save();
+          context.font = '20px ' + this.fontFamily;
+          if(this.game.isPaused) {
+            console.log('paused');
+            this.setTextStyleAndDrawInTheMiddle(context, 'PAUSED');
+          }
+          if (this.game.gameOver) {
+            this.setTextStyleAndDrawInTheMiddle(context, 'GAME OVER');
+          }
+          context.fillText(this.game.score, 15, 40);
+          context.fillStyle = 'red';
+          for (let i = 1; i < this.game.lifes; i++) {
+            context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
+          }
+          context.restore();
+          break;
+        }
+        this.drawHighScore(context);
+    }
+
+    setTextStyleAndDrawInTheMiddle(context, text) {
+      context.textAlign = 'center';
+      context.fillStyle = 'white';
+      context.font = '50px ' + this.fontFamily;
+      context.fillText(text, this.game.width * 0.5, this.game.height * 0.5);
+    }
+
+    drawMainMenu(context) {
+      //red text part
+      context.save();
       context.fillStyle = 'red';
+      context.font = '20px ' + this.fontFamily;
+      context.fillText('1UP', 15, 20);
+      context.fillText('2UP', this.game.width - 140, 20);
+      context.fillStyle = 'white';
+      context.fillText(this.game.score, 15, 40);
+      context.fillText(0, this.game.width - 140, 40);
+      this.drawMenuOptions(context);
+      context.restore();
+    }
+
+    drawHighScore(context) {
+      context.save();
+      context.fillStyle = 'red';
+      context.font = '20px ' + this.fontFamily;
       context.fillText('HIGHSCORE', (this.game.width - 150) * 0.5, 20);
-      for (let i = 1; i < this.game.lifes; i++) {
-        context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
+      context.fillStyle = 'white';
+      context.fillText(this.game.highScore, (this.game.width - 75) * 0.5, 40);
+      context.restore();
+    }
+
+    drawMenuOptions(context) {
+      context.fillText('1 PLAYER', this.game.width * 0.4, this.game.height * 0.5);
+      context.fillText('2 PLAYER', this.game.width * 0.4, this.game.height * 0.5 + 30);
+      context.fillText('RULES', this.game.width * 0.4, this.game.height * 0.5 + 60);
+      context.fillText('OPTIONS', this.game.width * 0.4, this.game.height * 0.5 + 90);
+    }
+
+    drawPicker(context, position) {
+      context.save();
+      //TODO: fix sprite rotation
+      //context.rotate(90 * Math.PI /180);
+      //TODO: fix all the magical numbers
+      switch(position) {
+        case 1:
+          context.drawImage(this.game.spriteSheet.sheet, 289, 170, 14, 18, this.game.width * 0.4 - 40, this.game.height * 0.5 - 23, 25, 25);
+          break;
+        case 2:
+          context.drawImage(this.game.spriteSheet.sheet, 289, 170, 14, 18, this.game.width * 0.4 - 40, this.game.height * 0.5 + 7, 25, 25);
+          break; 
+        case 3:
+          context.drawImage(this.game.spriteSheet.sheet, 289, 170, 14, 18, this.game.width * 0.4 - 40, this.game.height * 0.5 + 37, 25, 25);
+          break;
+        case 4:
+          context.drawImage(this.game.spriteSheet.sheet, 289, 170, 14, 18, this.game.width * 0.4 - 40, this.game.height * 0.5 + 67, 25, 25);
+          break;
       }
       context.restore();
     }
@@ -211,7 +315,12 @@ window.addEventListener('load', function () {
       this.background = new Background(this);
       this.player = new Player(this, this.spriteSheet);
       this.ui = new UI(this);
+      this.menuChoice = MenuStates.onePlayer;
       this.fontFamily = 'PixeloidMono';
+      this.highScore = 30000;
+
+      //TODO: make sure that the enums are working as states here
+      this.gameState = UIStates.mainMenu;
       //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;
@@ -264,23 +373,6 @@ window.addEventListener('load', function () {
       this.enemies.forEach(enemy => {
         enemy.draw(context);
       });
-      if(this.isPaused) {
-       context.save();
-       context.textAlign = 'center';
-       context.fillStyle = 'white';
-       context.font = '50px ' + this.fontFamily;
-       context.fillText('Paused', this.width * 0.5, this.height * 0.5);
-       context.restore(); 
-      }
-      if(this.gameOver) {
-        //TODO: fix fill text for other text not to jump + text colour
-        context.save();
-        context.fillStyle = 'white';
-        context.textAlign = 'center';
-        context.font = '50px ' + this.fontFamily; 
-        context.fillText('Game Over', this.width * 0.5, this.height * 0.5);
-        context.restore();
-      }
       this.ui.draw(context);
     }
 

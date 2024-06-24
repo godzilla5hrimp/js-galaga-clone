@@ -27,11 +27,17 @@ window.addEventListener('load', function () {
           this.game.menuChoice = this.game.menuChoice - 1;
         } else if (event.key === 'ArrowDown' && this.game.menuChoice === 3) {
           this.game.menuChoice = MenuStates.onePlayer;
+        } else if (event.key === 'ArrowDonw' && this.game.menuChoice === 1) {
+          this.game.menuChoice = MenuStates.rules;
         } else if (event.key === 'ArrowDown') {
           this.game.menuChoice = this.game.menuChoice + 1;
         } else if (event.key === ' ' && this.game.gameState === UIStates.mainMenu && this.game.menuChoice === MenuStates.onePlayer) {
           this.game.gameState = UIStates.game;
           this.game.isPaused = false;
+        } else if(event.key === ' ' && this.game.gameState === UIStates.mainMenu && this.game.menuChoice === MenuStates.rules) {
+          this.game.gameState = UIStates.help;
+        } else if(event.key === ' ' && this.game.gameState === UIStates.help) {
+          this.game.gameState = UIStates.mainMenu;
         }
       });
       window.addEventListener('keyup', event => {
@@ -206,6 +212,7 @@ window.addEventListener('load', function () {
           context.save();
           //context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
           this.drawMainMenu(context);
+          this.drawMenuOptions(context)
           switch(this.game.menuChoice) {
             case MenuStates.onePlayer:
               this.drawPicker(context, 1);
@@ -224,9 +231,10 @@ window.addEventListener('load', function () {
           context.restore();
           break;
         case UIStates.game:
+          this.drawScore(context, this.game);
           //TODO: fix UI in a game state;
           context.save();
-          context.font = '20px ' + this.fontFamily;
+          //context.font = '20px ' + this.fontFamily;
           if(this.game.isPaused) {
             console.log('paused');
             this.setTextStyleAndDrawInTheMiddle(context, 'PAUSED');
@@ -234,12 +242,16 @@ window.addEventListener('load', function () {
           if (this.game.gameOver) {
             this.setTextStyleAndDrawInTheMiddle(context, 'GAME OVER');
           }
-          context.fillText(this.game.score, 15, 40);
-          context.fillStyle = 'red';
+          //context.fillText(this.game.score, 15, 40);
+          //context.fillStyle = 'red';
           for (let i = 1; i < this.game.lifes; i++) {
             context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
           }
           context.restore();
+          break;
+        case UIStates.help:
+          this.drawMainMenu(context);
+          this.drawRules(context);
           break;
         }
         this.drawHighScore(context);
@@ -262,7 +274,6 @@ window.addEventListener('load', function () {
       context.fillStyle = 'white';
       context.fillText(this.game.score, 15, 40);
       context.fillText(0, this.game.width - 140, 40);
-      this.drawMenuOptions(context);
       context.restore();
     }
 
@@ -277,10 +288,36 @@ window.addEventListener('load', function () {
     }
 
     drawMenuOptions(context) {
+      context.save();
+      context.font = '20px ' + this.fontFamily;
+      context.fillStyle = 'white';
       context.fillText('1 PLAYER', this.game.width * 0.4, this.game.height * 0.5);
+      context.fillStyle = 'gray';
       context.fillText('2 PLAYER', this.game.width * 0.4, this.game.height * 0.5 + 30);
+      context.fillStyle = 'white';
       context.fillText('RULES', this.game.width * 0.4, this.game.height * 0.5 + 60);
       context.fillText('OPTIONS', this.game.width * 0.4, this.game.height * 0.5 + 90);
+      context.restore();
+    }
+
+    drawScore(context, game) {
+      context.save();
+      context.font = '20px ' + this.fontFamily;
+      context.fillStyle = 'white';
+      context.fillText(game.score, 15, 40);
+      context.fillStyle = 'red';
+      context.fillText('1UP', 15, 20);
+      context.restore();
+    }
+
+    drawRules(context) {
+      context.save();
+      context.fillStyle = 'cyan';
+      context.font = '20px ' + this.fontFamily;
+      context.fillText('---- SCORE ----', this.game.width * 0.3 - 10, this.game.height * 0.25);
+      context.fillText('50', this.game.width * 0.45, this.game.height * 0.3);
+      context.fillText('100', this.game.width * 0.45, this.game.height * 0.35);
+      context.restore();
     }
 
     drawPicker(context, position) {
@@ -318,7 +355,6 @@ window.addEventListener('load', function () {
       this.menuChoice = MenuStates.onePlayer;
       this.fontFamily = 'PixeloidMono';
       this.highScore = 30000;
-
       //TODO: make sure that the enums are working as states here
       this.gameState = UIStates.mainMenu;
       //TODO: fix this state

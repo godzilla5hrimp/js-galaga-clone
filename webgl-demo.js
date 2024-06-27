@@ -204,6 +204,7 @@ window.addEventListener('load', function () {
       this.fontSize = 25;
       this.fontFamily = 'PixeloidMono';
       this.color = 'white';
+      this.fps = 5;
     }
 
     draw(context) {
@@ -251,7 +252,7 @@ window.addEventListener('load', function () {
           break;
         case UIStates.help:
           this.drawMainMenu(context);
-          this.drawRules(context);
+          this.drawRules(context, this.game.deltaTime);
           break;
         }
         this.drawHighScore(context);
@@ -310,14 +311,22 @@ window.addEventListener('load', function () {
       context.restore();
     }
 
-    drawRules(context) {
+    drawRules(context, deltaTime) {
       context.save();
       context.fillStyle = 'cyan';
       context.font = '20px ' + this.fontFamily;
       context.fillText('---- SCORE ----', this.game.width * 0.3 - 10, this.game.height * 0.25);
       context.fillText('50', this.game.width * 0.45, this.game.height * 0.3);
-      context.fillText('100', this.game.width * 0.45, this.game.height * 0.35);
+      context.fillText('100', this.game.width * 0.65, this.game.height * 0.3);
+      context.drawImage(this.game.spriteSheet.sheet, 130, 93, 10, 11, this.game.width * 0.25 , this.game.height * 0.3 - 23, 25, 25);
+      context.fillText('160', this.game.width * 0.65, this.game.height * 0.35);
+      context.fillText('80', this.game.width * 0.45, this.game.height * 0.35);
+      context.drawImage(this.game.spriteSheet.sheet, 110, 75, 14, 10, this.game.width * 0.25, this.game.height * 0.32, 25, 25);
       context.restore();
+    }
+
+    animateExample() {
+      
     }
 
     drawPicker(context, position) {
@@ -356,7 +365,7 @@ window.addEventListener('load', function () {
       this.fontFamily = 'PixeloidMono';
       this.highScore = 30000;
       //TODO: make sure that the enums are working as states here
-      this.gameState = UIStates.mainMenu;
+      this.gameState = UIStates.help;
       //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;

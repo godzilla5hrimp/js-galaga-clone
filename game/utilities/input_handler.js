@@ -1,3 +1,6 @@
+import { UIStates } from "./ui_states.js";
+import { MenuStates } from "./menu_states.js";
+
 export class InputHandler {
     constructor(game) {
       this.game = game;

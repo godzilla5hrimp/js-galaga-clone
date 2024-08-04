@@ -1,5 +1,5 @@
-import { UIStates } from "./ui_states";
-import { MenuStates } from "./menu_states";
+import { UIStates } from "./ui_states.js";
+import { MenuStates } from "./menu_states.js";
 
 export class UI {
     constructor(game) {

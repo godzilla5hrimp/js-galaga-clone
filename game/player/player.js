@@ -1,4 +1,7 @@
-import { UIStates } from "../utilities/ui_states";
+import { UIStates } from "../utilities/ui_states.js"
+import { Projectile } from "../common/projectile.js";
+
+import { game } from "../../webgl-demo.js"
 
 export class Player {
     constructor(game, spriteSheet) {

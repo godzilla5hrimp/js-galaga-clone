@@ -23,7 +23,7 @@ export class Game {
       this.fontFamily = 'PixeloidMono';
       this.highScore = 30000;
       //TODO: make sure that the enums are working as states here
-      this.gameState = UIStates.mainMenu;
+      this.gameState = UIStates.game;
       //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;
@@ -58,7 +58,10 @@ export class Game {
         });
         this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
         if((this.enemyTimer > this.enemyInterval) && !this.gameOver) {
-          this.addEnemy();
+          // this.addEnemy();
+          for (let i = 0; i < 5; i++) {
+            this.enemies.push(new SmallEnemyShip(this, 0.015*i));
+          }
           this.enemyTimer = 0;
         } else {
           this.enemyTimer += deltaTime;

@@ -8,6 +8,8 @@ export class Enemy {
       this.height = 32;
       this.speedY = 2;
       this.markedForDeletion = false;
+      this.reachedPosition = false;
+      this.frequency = 0.01;
     }
 
     update() {
@@ -16,8 +18,8 @@ export class Enemy {
       // this.y = this.generateYPosition(this.x);
       // if(this.y > this.game.height) this.markedForDeletion = true;
             //TODO: change this normal curve to Besier curve in the future
-      if (this.y >= this.game.height / 2) {
-        this.x += 10;
+      if (this.y >= this.game.height / 2 && !this.reachedPosition) {
+        this.x += 2;
         this.y = this.generateYPosition(this.x);
       } else {
         this.y += 2;
@@ -31,8 +33,11 @@ export class Enemy {
 
     generateYPosition(x) {
       const amplitude = 600;
-      const frequency = 0.01;
       const phaseShift = Math.PI / 4;
-      return amplitude * Math.sin(frequency * x + phaseShift);
+      return amplitude * Math.sin(this.frequency * x + phaseShift);
+    }
+
+    getBezierY(x, firstPoint, secondPoint) {
+
     }
 }

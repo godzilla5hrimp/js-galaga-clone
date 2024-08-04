@@ -77,7 +77,8 @@ window.addEventListener('load', function () {
   class Enemy {
     constructor(game) {
       this.game = game;
-      this.y = 0;
+      this.x = Math.floor(Math.random() * (0, this.game.width));
+      this.y = this.game.height/2;
       this.width = 32;
       this.height = 32;
       this.speedY = 2;
@@ -85,7 +86,10 @@ window.addEventListener('load', function () {
     }
 
     update() {
-      this.y += this.speedY;
+      //TODO: figure out where the control points for the bezier curve should be
+      //this.y += bezierCurve(t, this.y, this.x );
+      this.x += 2;
+      this.y = this.generateYPosition(this.x);
       if(this.y > this.game.height) this.markedForDeletion = true;
     }
 
@@ -94,12 +98,20 @@ window.addEventListener('load', function () {
       //context.fillRect(this.x, this.y, this.width, this.height);
       context.drawImage(this.game.spriteSheet.sheet, 110, 37, 16, 16, this.x, this.y, this.width, this.height); 
     }
+
+    generateYPosition(x) {
+      const amplitude = 300;
+      const frequency = 0.01;
+      const phaseShift = Math.PI / 4;
+      return amplitude * Math.sin(frequency * x + phaseShift);
+    }
   }
 
   class SmallEnemyShip extends Enemy {
     constructor(game) {
       super(game);
       this.x = Math.random() * (this.game.width * 0.9 - this.width);
+      this.y = this.generateYPosition(this.x);
     }
   }
 
@@ -107,6 +119,7 @@ window.addEventListener('load', function () {
     constructor() {
       this.sheet = document.getElementById('sprites');
     }
+
 
     drawPlayerNormal(context, player) {
       context.drawImage(this.sheet, 109, 1, 15, 16, player.x - 14, player.y + 6, player.width, player.height);
@@ -365,7 +378,7 @@ window.addEventListener('load', function () {
       this.fontFamily = 'PixeloidMono';
       this.highScore = 30000;
       //TODO: make sure that the enums are working as states here
-      this.gameState = UIStates.help;
+      this.gameState = UIStates.mainMenu;
       //TODO: fix this state
       this.gameOver = false;
       this.isPaused = true;

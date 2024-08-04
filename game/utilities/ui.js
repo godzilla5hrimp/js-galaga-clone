@@ -34,10 +34,9 @@ export class UI {
           break;
         case UIStates.game:
           this.drawScore(context, this.game);
-          context.save();
           if(this.game.isPaused) {
             console.log('paused');
-            this.setTextStyleAndDrawInTheMiddle(context, 'PAUSED');
+            this.setTextStyleAndDrawInTheMiddle(context, 'PAUSED', 'press P to unpause');
           }
           if (this.game.gameOver) {
             this.setTextStyleAndDrawInTheMiddle(context, 'GAME OVER');
@@ -45,7 +44,6 @@ export class UI {
           for (let i = 1; i < this.game.lifes; i++) {
             context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
           }
-          context.restore();
           break;
         case UIStates.help:
           this.drawMainMenu(context);
@@ -55,11 +53,14 @@ export class UI {
         this.drawHighScore(context);
     }
 
-    setTextStyleAndDrawInTheMiddle(context, text) {
+    setTextStyleAndDrawInTheMiddle(context, text, additionalText) {
+      context.save();
       context.textAlign = 'center';
       context.fillStyle = 'white';
-      context.font = '50px ' + this.fontFamily;
+      context.font = '30px ' + this.fontFamily;
       context.fillText(text, this.game.width * 0.5, this.game.height * 0.5);
+      context.fillText(additionalText, this.game.width * 0.5, this.game.height * 0.5 + 50, this.game.width);
+      context.restore();
     }
 
     drawMainMenu(context) {

@@ -9,6 +9,7 @@ window.addEventListener('load', function () {
     constructor(game) {
       this.game = game;
       window.addEventListener('keydown', event => {
+        //TODO: make this asynchronomous
         let index = this.game.keys.indexOf(event.key);
         if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') 
         && this.game.keys.indexOf(event.key) === -1) {
@@ -64,14 +65,8 @@ window.addEventListener('load', function () {
       if (this.x > this.game.width) this.markedForDeletion = true;
     }
     draw(context) {
-      //context.fillStyle = 'yellow';
-      //context.fillRect(this.x, this.y, this.width, this.height);
       context.drawImage(this.game.spriteSheet.sheet, 313, 122, 3, 7, this.x, this.y, 6, 14);
     }
-  }
-
-  class Particle {
-
   }
 
   class Enemy {
@@ -86,21 +81,18 @@ window.addEventListener('load', function () {
     }
 
     update() {
-      //TODO: figure out where the control points for the bezier curve should be
-      //this.y += bezierCurve(t, this.y, this.x );
+      //TODO: change this normal curve to Besier curve in the future
       this.x += 2;
       this.y = this.generateYPosition(this.x);
       if(this.y > this.game.height) this.markedForDeletion = true;
     }
 
     draw(context) {
-      //context.fillStyle = 'red';
-      //context.fillRect(this.x, this.y, this.width, this.height);
       context.drawImage(this.game.spriteSheet.sheet, 110, 37, 16, 16, this.x, this.y, this.width, this.height); 
     }
 
     generateYPosition(x) {
-      const amplitude = 300;
+      const amplitude = 600;
       const frequency = 0.01;
       const phaseShift = Math.PI / 4;
       return amplitude * Math.sin(frequency * x + phaseShift);
@@ -110,7 +102,7 @@ window.addEventListener('load', function () {
   class SmallEnemyShip extends Enemy {
     constructor(game) {
       super(game);
-      this.x = Math.random() * (this.game.width * 0.9 - this.width);
+      this.x = 0;
       this.y = this.generateYPosition(this.x);
     }
   }
@@ -224,7 +216,6 @@ window.addEventListener('load', function () {
       switch (this.game.gameState) {
         case UIStates.mainMenu:
           context.save();
-          //context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
           this.drawMainMenu(context);
           this.drawMenuOptions(context)
           switch(this.game.menuChoice) {
@@ -241,14 +232,11 @@ window.addEventListener('load', function () {
               this.drawPicker(context, 4);
               break;          
           }
-          //console.log(this.game.gameState);
           context.restore();
           break;
         case UIStates.game:
           this.drawScore(context, this.game);
-          //TODO: fix UI in a game state;
           context.save();
-          //context.font = '20px ' + this.fontFamily;
           if(this.game.isPaused) {
             console.log('paused');
             this.setTextStyleAndDrawInTheMiddle(context, 'PAUSED');
@@ -256,8 +244,6 @@ window.addEventListener('load', function () {
           if (this.game.gameOver) {
             this.setTextStyleAndDrawInTheMiddle(context, 'GAME OVER');
           }
-          //context.fillText(this.game.score, 15, 40);
-          //context.fillStyle = 'red';
           for (let i = 1; i < this.game.lifes; i++) {
             context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
           }

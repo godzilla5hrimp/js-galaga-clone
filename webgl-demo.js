@@ -9,6 +9,7 @@ window.addEventListener('load', function () {
     constructor(game) {
       this.game = game;
       window.addEventListener('keydown', event => {
+        //TODO: make this asynchronomous
         let index = this.game.keys.indexOf(event.key);
         if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') 
         && this.game.keys.indexOf(event.key) === -1) {
@@ -27,11 +28,17 @@ window.addEventListener('load', function () {
           this.game.menuChoice = this.game.menuChoice - 1;
         } else if (event.key === 'ArrowDown' && this.game.menuChoice === 3) {
           this.game.menuChoice = MenuStates.onePlayer;
+        } else if (event.key === 'ArrowDonw' && this.game.menuChoice === 1) {
+          this.game.menuChoice = MenuStates.rules;
         } else if (event.key === 'ArrowDown') {
           this.game.menuChoice = this.game.menuChoice + 1;
         } else if (event.key === ' ' && this.game.gameState === UIStates.mainMenu && this.game.menuChoice === MenuStates.onePlayer) {
           this.game.gameState = UIStates.game;
           this.game.isPaused = false;
+        } else if(event.key === ' ' && this.game.gameState === UIStates.mainMenu && this.game.menuChoice === MenuStates.rules) {
+          this.game.gameState = UIStates.help;
+        } else if(event.key === ' ' && this.game.gameState === UIStates.help) {
+          this.game.gameState = UIStates.mainMenu;
         }
       });
       window.addEventListener('keyup', event => {
@@ -58,20 +65,15 @@ window.addEventListener('load', function () {
       if (this.x > this.game.width) this.markedForDeletion = true;
     }
     draw(context) {
-      //context.fillStyle = 'yellow';
-      //context.fillRect(this.x, this.y, this.width, this.height);
       context.drawImage(this.game.spriteSheet.sheet, 313, 122, 3, 7, this.x, this.y, 6, 14);
     }
-  }
-
-  class Particle {
-
   }
 
   class Enemy {
     constructor(game) {
       this.game = game;
-      this.y = 0;
+      this.x = 0;
+      this.y = this.game.height/2;
       this.width = 32;
       this.height = 32;
       this.speedY = 2;
@@ -79,21 +81,29 @@ window.addEventListener('load', function () {
     }
 
     update() {
-      this.y += this.speedY;
+      //TODO: change this normal curve to Besier curve in the future
+      this.x += 2;
+      this.y = this.generateYPosition(this.x);
       if(this.y > this.game.height) this.markedForDeletion = true;
     }
 
     draw(context) {
-      //context.fillStyle = 'red';
-      //context.fillRect(this.x, this.y, this.width, this.height);
       context.drawImage(this.game.spriteSheet.sheet, 110, 37, 16, 16, this.x, this.y, this.width, this.height); 
+    }
+
+    generateYPosition(x) {
+      const amplitude = 600;
+      const frequency = 0.01;
+      const phaseShift = Math.PI / 4;
+      return amplitude * Math.sin(frequency * x + phaseShift);
     }
   }
 
   class SmallEnemyShip extends Enemy {
     constructor(game) {
       super(game);
-      this.x = Math.random() * (this.game.width * 0.9 - this.width);
+      this.x = 0;
+      this.y = this.generateYPosition(this.x);
     }
   }
 
@@ -101,6 +111,7 @@ window.addEventListener('load', function () {
     constructor() {
       this.sheet = document.getElementById('sprites');
     }
+
 
     drawPlayerNormal(context, player) {
       context.drawImage(this.sheet, 109, 1, 15, 16, player.x - 14, player.y + 6, player.width, player.height);
@@ -198,14 +209,15 @@ window.addEventListener('load', function () {
       this.fontSize = 25;
       this.fontFamily = 'PixeloidMono';
       this.color = 'white';
+      this.fps = 5;
     }
 
     draw(context) {
       switch (this.game.gameState) {
         case UIStates.mainMenu:
           context.save();
-          //context.fillText('Single Player', this.game.height * 0.5, this.game.width * 0.5);
           this.drawMainMenu(context);
+          this.drawMenuOptions(context)
           switch(this.game.menuChoice) {
             case MenuStates.onePlayer:
               this.drawPicker(context, 1);
@@ -220,13 +232,11 @@ window.addEventListener('load', function () {
               this.drawPicker(context, 4);
               break;          
           }
-          //console.log(this.game.gameState);
           context.restore();
           break;
         case UIStates.game:
-          //TODO: fix UI in a game state;
+          this.drawScore(context, this.game);
           context.save();
-          context.font = '20px ' + this.fontFamily;
           if(this.game.isPaused) {
             console.log('paused');
             this.setTextStyleAndDrawInTheMiddle(context, 'PAUSED');
@@ -234,12 +244,14 @@ window.addEventListener('load', function () {
           if (this.game.gameOver) {
             this.setTextStyleAndDrawInTheMiddle(context, 'GAME OVER');
           }
-          context.fillText(this.game.score, 15, 40);
-          context.fillStyle = 'red';
           for (let i = 1; i < this.game.lifes; i++) {
             context.drawImage(this.game.spriteSheet.sheet, 109, 1, 15, 16, 18 * i * 2 - 30, this.game.height - 40, 32, 32);
           }
           context.restore();
+          break;
+        case UIStates.help:
+          this.drawMainMenu(context);
+          this.drawRules(context, this.game.deltaTime);
           break;
         }
         this.drawHighScore(context);
@@ -262,7 +274,6 @@ window.addEventListener('load', function () {
       context.fillStyle = 'white';
       context.fillText(this.game.score, 15, 40);
       context.fillText(0, this.game.width - 140, 40);
-      this.drawMenuOptions(context);
       context.restore();
     }
 
@@ -277,10 +288,44 @@ window.addEventListener('load', function () {
     }
 
     drawMenuOptions(context) {
+      context.save();
+      context.font = '20px ' + this.fontFamily;
+      context.fillStyle = 'white';
       context.fillText('1 PLAYER', this.game.width * 0.4, this.game.height * 0.5);
+      context.fillStyle = 'gray';
       context.fillText('2 PLAYER', this.game.width * 0.4, this.game.height * 0.5 + 30);
+      context.fillStyle = 'white';
       context.fillText('RULES', this.game.width * 0.4, this.game.height * 0.5 + 60);
       context.fillText('OPTIONS', this.game.width * 0.4, this.game.height * 0.5 + 90);
+      context.restore();
+    }
+
+    drawScore(context, game) {
+      context.save();
+      context.font = '20px ' + this.fontFamily;
+      context.fillStyle = 'white';
+      context.fillText(game.score, 15, 40);
+      context.fillStyle = 'red';
+      context.fillText('1UP', 15, 20);
+      context.restore();
+    }
+
+    drawRules(context, deltaTime) {
+      context.save();
+      context.fillStyle = 'cyan';
+      context.font = '20px ' + this.fontFamily;
+      context.fillText('---- SCORE ----', this.game.width * 0.3 - 10, this.game.height * 0.25);
+      context.fillText('50', this.game.width * 0.45, this.game.height * 0.3);
+      context.fillText('100', this.game.width * 0.65, this.game.height * 0.3);
+      context.drawImage(this.game.spriteSheet.sheet, 130, 93, 10, 11, this.game.width * 0.25 , this.game.height * 0.3 - 23, 25, 25);
+      context.fillText('160', this.game.width * 0.65, this.game.height * 0.35);
+      context.fillText('80', this.game.width * 0.45, this.game.height * 0.35);
+      context.drawImage(this.game.spriteSheet.sheet, 110, 75, 14, 10, this.game.width * 0.25, this.game.height * 0.32, 25, 25);
+      context.restore();
+    }
+
+    animateExample() {
+      
     }
 
     drawPicker(context, position) {
@@ -318,7 +363,6 @@ window.addEventListener('load', function () {
       this.menuChoice = MenuStates.onePlayer;
       this.fontFamily = 'PixeloidMono';
       this.highScore = 30000;
-
       //TODO: make sure that the enums are working as states here
       this.gameState = UIStates.mainMenu;
       //TODO: fix this state

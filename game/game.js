@@ -1,5 +1,13 @@
 import { SpriteSheet } from "./utilities/sprite_sheet.js"
 import { InputHandler } from "./utilities/input_handler.js"
+import { Background } from "./utilities/background.js"
+import { Player } from "./player/player.js"
+import { UI } from "./utilities/ui.js"
+import { MenuStates } from "./utilities/menu_states.js"
+import { UIStates } from "./utilities/ui_states.js"
+import { SmallEnemyShip } from "./enemies/small_enemy_ship.js"
+
+import { game } from "../webgl-demo.js"
 
 
 export class Game {

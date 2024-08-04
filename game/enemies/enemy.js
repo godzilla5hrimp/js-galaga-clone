@@ -3,7 +3,7 @@ export class Enemy {
     constructor(game) {
       this.game = game;
       this.x = 0;
-      this.y = this.game.height/2;
+      this.y = this.game.height + 50;
       this.width = 32;
       this.height = 32;
       this.speedY = 2;
@@ -11,9 +11,17 @@ export class Enemy {
     }
 
     update() {
-      //TODO: change this normal curve to Besier curve in the future
-      this.x += 2;
-      this.y = this.generateYPosition(this.x);
+      // //TODO: change this normal curve to Besier curve in the future
+      // this.x += 2;
+      // this.y = this.generateYPosition(this.x);
+      // if(this.y > this.game.height) this.markedForDeletion = true;
+            //TODO: change this normal curve to Besier curve in the future
+      if (this.y >= this.game.height / 2) {
+        this.x += 10;
+        this.y = this.generateYPosition(this.x);
+      } else {
+        this.y += 2;
+      }
       if(this.y > this.game.height) this.markedForDeletion = true;
     }
 

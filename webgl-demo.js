@@ -77,7 +77,7 @@ window.addEventListener('load', function () {
   class Enemy {
     constructor(game) {
       this.game = game;
-      this.x = Math.floor(Math.random() * (0, this.game.width));
+      this.x = 0;
       this.y = this.game.height/2;
       this.width = 32;
       this.height = 32;

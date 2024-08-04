@@ -1,5 +1,4 @@
 import { Enemy } from "./enemy.js"
-import { game } from "../../webgl-demo.js"
 
 export class SmallEnemyShip extends Enemy {
     constructor(game) {

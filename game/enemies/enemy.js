@@ -10,6 +10,7 @@ export class Enemy {
       this.markedForDeletion = false;
       this.reachedPosition = false;
       this.frequency = 0.01;
+
     }
 
     update() {
@@ -37,7 +38,17 @@ export class Enemy {
       return amplitude * Math.sin(this.frequency * x + phaseShift);
     }
 
-    getBezierY(x, firstPoint, secondPoint) {
+    getBezierY(x, firstPoint, secondPoint, endPoint) {
+      const p0Array = Array.isArray(p0) ? p0 : [p0, p0];
+      const p1Array = Array.isArray(p1) ? p1 : [p1, p1];
+      const p2Array = Array.isArray(p2) ? p2 : [p2, p2];
 
+      const t = (x - p0Array[0]) / (p3Array[0] - p0Array[0]);
+
+      // Linearly interpolate between p0 and p3 to approximate the curve
+      return Math.pow(1 - t, 3) * p0Array[1] +
+             3 * Math.pow(1 - t, 2) * t * p1Array[1] +
+             Math.pow(t, 3) * p3Array[1];
+             3 * (1 - t) * Math.pow(t, 2) * p2Array[1] +
     }
 }

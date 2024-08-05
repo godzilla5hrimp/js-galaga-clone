@@ -6,6 +6,7 @@ import { UI } from "./utilities/ui.js"
 import { MenuStates } from "./utilities/menu_states.js"
 import { UIStates } from "./utilities/ui_states.js"
 import { SmallEnemyShip } from "./enemies/small_enemy_ship.js"
+import { EnemyController } from "./utilities/enemy_controller.js"
 
 import { game } from "../webgl-demo.js"
 

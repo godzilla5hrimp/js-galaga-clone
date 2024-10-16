@@ -36,7 +36,7 @@ export class UI {
           this.drawScore(context, this.game);
           context.save();
           if(this.game.isPaused) {
-            console.log('paused');
+            //console.log('paused');
             this.setTextStyleAndDrawInTheMiddle(context, 'PAUSED');
           }
           if (this.game.gameOver) {

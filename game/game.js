@@ -22,6 +22,11 @@ export class Game {
       this.menuChoice = MenuStates.onePlayer;
       this.fontFamily = 'PixeloidMono';
       this.highScore = 30000;
+      this.fivebatch = 0;
+      this.enemyLeftCol = 0;
+      this.enemyRightCol = 0;
+      this.enemyLeftRow = 0;
+      this.enemyRightRow = 0;
       //TODO: make sure that the enums are working as states here
       this.gameState = UIStates.mainMenu;
       //TODO: fix this state
@@ -57,17 +62,35 @@ export class Game {
           enemy.update();
         });
         this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
-        if((this.enemyTimer > this.enemyInterval) && !this.gameOver) {
-          this.addEnemy();
+        if((this.enemyTimer > this.enemyInterval) && !this.gameOver && this.enemies.length < 20) {
+          //console.log("fivebatch:" + this.fivebatch);
+          if(this.fivebatch < 5) {
+            this.addEnemy(this.enemyLeftCol, this.enemyLeftRow, "left");
+            this.enemyLeftCol++;
+          } else {
+            this.addEnemy(this.enemyRightCol, this.enemyRightRow, "right");
+            this.enemyRightCol++;
+          }
           this.enemyTimer = 0;
+          this.fivebatch++;
+          if (this.fivebatch >= 10) {
+            this.fivebatch = 0;
+            this.enemyRightCol = 0;
+            this.enemyRightRow++;
+            this.enemyLeftCol = 0;
+            this.enemyLeftRow++;
+          }
         } else {
           this.enemyTimer += deltaTime;
         }
       }
     }
     
-    addEnemy() {
-      this.enemies.push(new SmallEnemyShip(this));
+    addEnemy(colNumber, rowNumber, startDirection) {
+      this.enemies.push(new SmallEnemyShip(this, colNumber, rowNumber, startDirection));
+      if (this.enemyLeftRow > 0) {
+        //console.log("enemyLeftRowNum:" + this.enemyLeftRow + "; enemyLefColNum:" + this.enemyLeftCol);
+      }
     }
 
     draw(context) {
